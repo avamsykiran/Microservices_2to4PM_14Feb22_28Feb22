@@ -114,6 +114,7 @@ Microservices
             Integration Design Patterns
                 Api Gateway Design Pattern
                 Aggregator Design Pattern
+                Client Side Component Design Pattern
             Database Design Patterns
                 Database per Service Pattern
                 Shared Database Pattern
@@ -192,8 +193,113 @@ Microservices
                             Double totalDebit
                             Double statementBalance
 
+            Api Gateway Design Pattern
+                
+                BudgetAnalysisSystem - API Gateway
+                    
+                        Angular APP/REactJS APP/Andriod APP (CLEINTS)
+                                        |
+                                        |
+                                        ↓
+                                    apiGatway
+                                (spring cloud api gateway)
+                                        |
+                        |---------------|-----------------------|
+                        |               |                       |
+                        ↓               ↓                       ↓               
+                    profiles           txns                 stateemnt 
+                localhost:9100      localhost:9200        localhost:9300
+                        
+            Aggregator Design Pattern
 
-
-
+                an aggregator is a role played by any microservce that 
+                    a. when receives a request for a lumsum data (available with mutliple services)
+                    b. the data is retrived from those services and 
+                    c. composed into a single aggregated object and served back.
     
+                BudgetAnalysisSystem - API Gateway
+                    
+                         stateemnt 
+                          |<---- 1. a req for a statemnt of a specific account holder <-- Client
+                          |----------fetech accoutn details from <----------------------- profiles
+                          |----------fetech the list of transactiosn from <-------------- txns
+                          |-(Compute other details like totalCredit,totalDebit,statemetnBalence)
+                          |-(Compose all that data as a Statement object) responseded--> Client
+
+            Client Side Component Design Pattern
+
+                Each SPA is going to composed of components,
+                a component is small smnart section of a web page,
+                now each component can raise a req parallelly and will be served isolatedly from
+                other components.
+
+            Database per Service Pattern
+
+                each microservice is expected to have its own isolated database
+               
+                BudgetAnalysisSystem 
+                        Angular APP/REactJS APP/Andriod APP (CLEINTS)
+                                        |
+                                        |
+                                        ↓
+                                    apiGatway
+                                (spring cloud api gateway)
+                                        |
+                        |---------------|-----------------------|
+                        |               |                       |
+                        ↓               ↓                       ↓               
+                    profiles           txns                 stateemnt 
+                localhost:9100      localhost:9200        localhost:9300
+                        ↑               ↑                       
+                        ↓               ↓                       
+                    profilesDB       txnsDB                  
+                        
+            Shared Database Pattern
+                is a anti microservices pattern, to have a single database shared by all microservices,
+                but it becoems invitable while working on a brown-field project.
+
+            CQRS Pattern
+                Command Query Saggregation 
+                this design pattern garunties data consistency when a common piece of data
+                is expected to be accessed by multiple clients .
+
+                    eg: more than one client can try to book tickets in the smae thater for the smae show.
+
+                we are expected to depend on a message service like RabbitMQ/Kafka ..etc where 
+                the command (insert,update,delete) part of the eco-system will raise an event on
+                executing a command,
+                that event is heard by the Query part of the eco-system which executes pre-compiled views
+                of data that are then served on request.
+
+            Saga Pattern
+
+                a saga is a single transaction across mutiple-services in a eco-system.
+                    placing an order is a transaction involving various operations... (IS A SAGA)
+                        a. insert the order details in ordersDB thru OrdersMicroService
+                        b. update the stock accordingly in inventoryDB thru InventoryMicroService
+                        c. insert the delivery record in deliveryDB thru DeliveryMiucroService to track the order
+
+                a saga can managed in two ways
+                    1. choreography
+
+                    client 
+                     |---Req to place an order----> Orderes Service ---req to update stock--> InventoryService --> Delivery 
+                                                      order record 
+                                                      is inserted  
+                                                      the order     <--req cancellation----- if fails 
+                                                    is rolledback  
+
+                    2. orchestration
+                    
+                        client --Req to place an order----> OrchestrationSerice
+                                                                | ------req inserting order---> OrderSerivce
+                                                                | on success <----------------
+                                                                | ------req stock update------> InventorySerivce
+                                                                | on success <-----------------
+                                                                |----req delivery update -----> DeliveryService
+
+                                                                on any fialure, the prev step is rolledback.
+
+
+
     
