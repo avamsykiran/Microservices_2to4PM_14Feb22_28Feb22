@@ -300,6 +300,121 @@ Microservices
 
                                                                 on any fialure, the prev step is rolledback.
 
+            Observability Design Patterns- Distributed Tracing, Log Aggregation
 
+                1. Pull
+                        Each incoming req is givne a unique id and that id is passed along with the
+                        req, whereever it is forwarded to. The request traces are then pulled
+                        by a centeral server and are persisted there.
+                2. Psuh
+                        Each incoming req is givne a unique id and that id is passed along with the
+                        req, whereever it is forwarded to. The request traces are then pushed by each microservice
+                        to a centeral server and are persisted there.   
 
+                            Zipkin-Server + Spring Cloud Sleuth             
     
+                 BudgetAnalysisSystem 
+                        Angular APP/REactJS APP/Andriod APP (CLEINTS)
+                                        |
+                                        |
+                                        ↓
+                                    apiGatway
+                                (spring cloud api gateway)
+             |------------------sleuth  |
+             |                          |
+             |          |---------------|-----------------------|
+             |          |               |                       |
+             |          ↓               ↓                       ↓               
+             |       profiles           txns                 stateemnt 
+             |  localhost:9100      localhost:9200        localhost:9300
+             |   sleuth ↑        sleuth ↑                sleuth
+             |   |      ↓          |    ↓                   |        
+             |   |   profilesDB    |   txnsDB               |
+             |---|-----------------|------------------------|
+                                   |
+                                   ↓
+                        Distributed Tracing Service
+                                Zipkin-Server
+
+            Discovery Service Design Pattern
+
+               1. a discovery service is a registary of microservices and thier ip:port's
+               2. Each time a microservice instance launches it has to register itself on discovery serviece
+               3. When a microservice(A) needs to talk to another microservice(B) , A will fetch the ip:port's list
+                    from the discovery service and the load balancer on (A) will choose one instance from the list.
+
+
+                BudgetAnalysisSystem 
+                        Angular APP/REactJS APP/Andriod APP (CLEINTS)
+                                        |
+                                        |
+                                        ↓
+                                    apiGatway                      Discovery Service
+                                (spring cloud api gateway)        (Netflix Eureka Service)
+             |------------------sleuth  |                                    |
+             |                          |-address are feteched or registered-|
+             |          |---------------|-----------------------|
+             |          |               |                       |
+             |          ↓               ↓                       ↓               
+             |       profiles           txns                 statement 
+             |  localhost:9100      localhost:9200        localhost:9300
+             |   sleuth ↑        sleuth ↑                sleuth
+             |   |      ↓          |    ↓                   |        
+             |   |   profilesDB    |   txnsDB               |
+             |---|-----------------|------------------------|
+                                   |
+                                   ↓
+                        Distributed Tracing Service
+                                Zipkin-Server
+
+            External Configuaration Pattern
+
+                A config server is the one which has an underlying repository of config files.
+                A microservice before gets active will contact the config server and pick its respective
+                config file.
+
+                A production owner or adminsitator can change the cofigs anytime and commit them into
+                that repository, and the underlying microservices will be notifed.
+
+                 BudgetAnalysisSystem 
+                        Angular APP/REactJS APP/Andriod APP (CLEINTS)
+                                        |
+                                        |
+                                        ↓
+                                    apiGatway                      Discovery Service
+                                (spring cloud api gateway)        (Netflix Eureka Service)
+             |------------------sleuth  |                                    |
+             |                          |-address are feteched or registered-|
+             |          |---------------|-----------------------|
+             |          |               |                       |
+             |          ↓               ↓                       ↓               
+             |       profiles           txns                 statement 
+             |  localhost:9100      localhost:9200        localhost:9300
+             |   sleuth ↑        sleuth ↑                sleuth
+             |   |      ↓          |    ↓                   |        
+             |   |   profilesDB    |   txnsDB               |
+             |---|-----------------|------------------------|
+                                   |--------------------------------|
+                                   ↓                                |
+                        Distributed Tracing Service             Config service
+                                Zipkin-Server                  Spring Cloud Config Service
+                                                                        |
+                                                                        |
+                                                                    config repo
+                                                                        profiles.properties
+                                                                        txns.properties
+                                                                        statement.properties
+            Circuit Breaking Pattern 
+
+                1. when a microservice(A) needs to send a req to another microservice(B),
+                    if (B) is 'UP', the circuit is closed and the req will be made.
+                    if (B) is 'DOWN', then the circuit is broken (opened) and a 
+                    fallback operation takes place, the ciruit remains open for a given
+                    thrushold of time within which no req is made to (B) and only 
+                    fallback operations will occur. After the thrushold time lapses,
+                    a req is attempted and the cirucit is closed only when atleast one
+                    successful req is made.
+
+                    the thrushhold and fallback are developer controlled.
+
+                    we will be using resiliance4j to implement cirucit braking pattern.
