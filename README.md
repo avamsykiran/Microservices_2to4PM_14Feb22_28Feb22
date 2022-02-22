@@ -144,7 +144,7 @@ Microservices
                     5. Edit a transaction
                     6. Delete a transaction
                     7. Retrive all transaction of an account holder for a given period
-                    8. Retrive the currentBalance of the accoutn holder
+                    8. Retrive the currentBalance of the account holder
                 stateemnt microservice
                     9. Generate a statement of an accoutn holder for a given period computing
                         the totalCredit , totalDebit and balance for that statement period.
@@ -163,20 +163,20 @@ Microservices
                     AccountHolder
                         Long ahId
                         Double currentBalance
-                        Set<Transaction> transactions
-                    Transaction                
+                        Set<Txn> txns
+                    Txn                
                         Long txnId
                         String header
                         Double amount
-                        TransactionType type
+                        TxnType type
                         LocalDate dateOfTransaction
                         AccountHolder holder
                 stateemnt microservice
-                    Transaction                
+                    Txn                
                         Long txnId
                         String header
                         Double amount
-                        TransactionType type
+                        TxnType type
                         LocalDate dateOfTransaction
                 
                     Statement
