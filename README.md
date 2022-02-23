@@ -140,13 +140,13 @@ Microservices
                     2. Edit an accoount holder profile
                     3. retrive an account holder profile
                 txns microservice
-                    4. Add a transaction
-                    5. Edit a transaction
-                    6. Delete a transaction
-                    7. Retrive all transaction of an account holder for a given period
-                    8. Retrive the currentBalance of the account holder
+                    4. Add a transaction        POST
+                    5. Edit a transaction       PUT
+                    6. Delete a transaction     DELETE
+                    7. Retrive all transaction of an account holder for a given period  GET
+                    8. Retrive the currentBalance of the account holder                 GET
                 stateemnt microservice
-                    9. Generate a statement of an accoutn holder for a given period computing
+                    9. Generate a statement of an account holder for a given month and year computing
                         the totalCredit , totalDebit and balance for that statement period.
 
         Sub-Domain Bounded Context Pattern (Decomposition by sub-domain)
@@ -178,15 +178,18 @@ Microservices
                         Double amount
                         TxnType type
                         LocalDate dateOfTransaction
-                
-                    Statement
+
+                    AccountHolderProfile
                         Long ahId
                         String firstName
                         String lastName
                         String mailId
                         String mobile
                         Double currentBalance
-                        Set<Transaction> transactions
+                
+                    Statement
+                        AccountHolderProfile profile
+                        Set<Txn> txns
                         LocalDate fromDate
                         LocalDate toDate
                         Double totalCredit
