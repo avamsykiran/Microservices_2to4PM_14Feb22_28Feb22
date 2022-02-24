@@ -171,7 +171,7 @@ Microservices
                         TxnType type
                         LocalDate dateOfTransaction
                         AccountHolder holder
-                stateemnt microservice
+                Statement microservice
                     Txn                
                         Long txnId
                         String header
@@ -469,9 +469,32 @@ Microservices
                     spring.application.name=statement
                     server.port=9300
 
-
         Step 2: Implement Discovery Service Design Pattern and Client Side Load Balancing
         Step 3: Implement API Gateway Design Pattern
         Step 4: Implement Distributed Tracing Design Pattern
         Step 5: Implement Circuit Breaker Design Pattern
         Step 6: External Configuaration Design Pattern
+
+    Assignement - D2HConsumerSelfServiceSystem
+    -----------------------------------------------------------
+
+        Consumers
+            1. Each consuemr to register 
+            2. Retrive Consuemr Details
+
+        Channels
+            1. Add channels (chid,title,ratePerMonth)
+            2. Edit channel
+            3. Delete Channel ..etc
+
+        Subscriptions
+            
+            Each consumer can have any number of subscriptions
+            Each subscription will have (supId,startDate,endDate,status,channelId)
+
+            1. Add susbcriptions
+            2. Delete subscriptions
+            3. Renew an existing subscription
+            4. Retrive the consuemr detials along with list of active subscriptions.
+
+    

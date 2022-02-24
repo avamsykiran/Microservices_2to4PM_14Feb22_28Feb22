@@ -1,7 +1,7 @@
 package in.cts.budgetanalysis.statement.services;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Set;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -18,7 +18,7 @@ public interface TxnsClient {
 	public double getCurrentBalance(@PathVariable("ahId")long ahId);
 	
 	@GetMapping("/{ahId}/{from}/{to}")
-	public List<Txn> getAllTxns(
+	public Set<Txn> getAllTxns(
 				@PathVariable("ahId") long ahId,
 				@PathVariable("from") @DateTimeFormat(iso=ISO.DATE) LocalDate from,
 				@PathVariable("to") @DateTimeFormat(iso=ISO.DATE) LocalDate to
