@@ -470,7 +470,69 @@ Microservices
                     server.port=9300
 
         Step 2: Implement Discovery Service Design Pattern and Client Side Load Balancing
+            in.cts.budgetanalysis : discovery
+                dependencies
+                    org.springframework.boot:spring-boot-devtools
+                    org.springframework.cloud:spring-cloud-starter-netflix-eureka-server
+                configuaration
+                    @EnableEurekaServer    on Application class
+
+                    spring.application.name=discovery
+                    server.port=9000
+
+                    eureka.instance.hostname=localhost
+                    eureka.client.registerWithEureka=false
+                    eureka.client.fetchRegistry=false
+                    eureka.client.serviceUrl.defaultZone=http://${eureka.instance.hostname}:${server.port}/eureka/
+                    eureka.server.waitTimeInMsWhenSyncEmpty=0
+
+            in.cts.budgetanalysis : profiles
+                dependencies
+                    ++ org.springframework.cloud:spring-cloud-starter-netflix-eureka-client
+                    ++ org.springframework.cloud:spring-cloud-starter-loadbalancer
+                configuaration
+                    ++@EnableDiscoveryClient  on Application class
+
+                    eureka.client.serviceUrl.defaultZone=http://localhost:9000/eureka/
+                    eureka.client.initialInstanceInfoReplicationIntervalSeconds=5
+                    eureka.client.registryFetchIntervalSeconds=5
+                    eureka.instance.leaseRenewalIntervalInSeconds=5
+                    eureka.instance.leaseExpirationDurationInSeconds=5
+
+                    spring.cloud.loadbalancer.ribbon.enabled=false
+
+            in.cts.budgetanalysis : txns
+               dependencies
+                    ++ org.springframework.cloud:spring-cloud-starter-netflix-eureka-client
+                    ++ org.springframework.cloud:spring-cloud-starter-loadbalancer
+                configuaration
+                    ++@EnableDiscoveryClient  on Application class
+
+                    eureka.client.serviceUrl.defaultZone=http://localhost:9000/eureka/
+                    eureka.client.initialInstanceInfoReplicationIntervalSeconds=5
+                    eureka.client.registryFetchIntervalSeconds=5
+                    eureka.instance.leaseRenewalIntervalInSeconds=5
+                    eureka.instance.leaseExpirationDurationInSeconds=5
+
+                    spring.cloud.loadbalancer.ribbon.enabled=false
+
+            in.cts.budgetanalysis : statement
+               dependencies
+                    ++ org.springframework.cloud:spring-cloud-starter-netflix-eureka-client
+                    ++ org.springframework.cloud:spring-cloud-starter-loadbalancer
+                configuaration
+                    ++@EnableDiscoveryClient  on Application class
+
+                    eureka.client.serviceUrl.defaultZone=http://localhost:9000/eureka/
+                    eureka.client.initialInstanceInfoReplicationIntervalSeconds=5
+                    eureka.client.registryFetchIntervalSeconds=5
+                    eureka.instance.leaseRenewalIntervalInSeconds=5
+                    eureka.instance.leaseExpirationDurationInSeconds=5
+
+                    spring.cloud.loadbalancer.ribbon.enabled=false    
+
         Step 3: Implement API Gateway Design Pattern
+        
         Step 4: Implement Distributed Tracing Design Pattern
         Step 5: Implement Circuit Breaker Design Pattern
         Step 6: External Configuaration Design Pattern
