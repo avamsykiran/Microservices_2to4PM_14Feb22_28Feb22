@@ -532,7 +532,33 @@ Microservices
                     spring.cloud.loadbalancer.ribbon.enabled=false    
 
         Step 3: Implement API Gateway Design Pattern
-        
+            in.cts.budgetanalysis : gateway
+                dependencies
+                    org.springframework.boot:spring-boot-devtools
+                    org.springframework.cloud:spring-cloud-starter-api-gateway
+                    org.springframework.cloud:spring-cloud-starter-netflix-eureka-client
+                    org.springframework.cloud:spring-cloud-starter-loadbalancer
+                configuaration
+                    @EnableDiscoveryClient          on Application class
+
+                    spring.application.name=gateway
+                    server.port=9999
+
+                    eureka.client.serviceUrl.defaultZone=http://localhost:9000/eureka/
+                    eureka.client.initialInstanceInfoReplicationIntervalSeconds=5
+                    eureka.client.registryFetchIntervalSeconds=5
+                    eureka.instance.leaseRenewalIntervalInSeconds=5
+                    eureka.instance.leaseExpirationDurationInSeconds=5
+
+                    spring.cloud.gateway.discovery.locator.enabled=true
+                    spring.cloud.gateway.discovery.locator.lower-case-service-id=true
+
+                    
+            in.cts.budgetanalysis : discovery
+            in.cts.budgetanalysis : profiles
+            in.cts.budgetanalysis : txns
+            in.cts.budgetanalysis : statement
+                  
         Step 4: Implement Distributed Tracing Design Pattern
         Step 5: Implement Circuit Breaker Design Pattern
         Step 6: External Configuaration Design Pattern
