@@ -552,7 +552,6 @@ Microservices
 
                     spring.cloud.gateway.discovery.locator.enabled=true
                     spring.cloud.gateway.discovery.locator.lower-case-service-id=true
-
                     
             in.cts.budgetanalysis : discovery
             in.cts.budgetanalysis : profiles
@@ -560,8 +559,167 @@ Microservices
             in.cts.budgetanalysis : statement
                   
         Step 4: Implement Distributed Tracing Design Pattern
+              in.cts.budgetanalysis : discovery
+              
+              in.cts.budgetanalysis : gateway
+                dependencies
+                    ++org.springframework.boot:spring-boot-starter-actuator
+                    ++org.springframework.cloud:spring-cloud-starter-sleuth
+                    ++org.springframework.cloud:spring-cloud-starter-zipkin : 2.2.8.RELEASE
+                
+                configuaration
+                    logger.level.org.springramework.web=debug
+                    management.endpoints.web.exposure.include=*
+           
+            in.cts.budgetanalysis : profiles
+                dependencies
+                    ++org.springframework.boot:spring-boot-starter-actuator
+                    ++org.springframework.cloud:spring-cloud-starter-sleuth
+                    ++org.springframework.cloud:spring-cloud-starter-zipkin : 2.2.8.RELEASE
+                
+                configuaration
+                    logger.level.org.springramework.web=debug
+                    management.endpoints.web.exposure.include=*
+
+            in.cts.budgetanalysis : txns
+                dependencies
+                    ++org.springframework.boot:spring-boot-starter-actuator
+                    ++org.springframework.cloud:spring-cloud-starter-sleuth
+                    ++org.springframework.cloud:spring-cloud-starter-zipkin : 2.2.8.RELEASE
+                
+                configuaration
+                    logger.level.org.springramework.web=debug
+                    management.endpoints.web.exposure.include=*
+
+            in.cts.budgetanalysis : statement
+                dependencies
+                    ++org.springframework.boot:spring-boot-starter-actuator
+                    ++org.springframework.cloud:spring-cloud-starter-sleuth
+                    ++org.springframework.cloud:spring-cloud-starter-zipkin : 2.2.8.RELEASE
+                
+                configuaration
+                    logger.level.org.springramework.web=debug
+                    management.endpoints.web.exposure.include=*
+
+            tracing-service
+                zipkin-server
+                    https://search.maven.org/remote_content?g=io.zipkin&a=zipkin-server&v=LATEST&c=exec 
+                    
+                    java -jar zipkin.jar
+
         Step 5: Implement Circuit Breaker Design Pattern
+            in.cts.budgetanalysis : discovery  
+            in.cts.budgetanalysis : gateway
+            in.cts.budgetanalysis : profiles
+            in.cts.budgetanalysis : txns
+                dependencies
+                    ++org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j
+                
+                configuaration
+                    resilience4j.circuitbreaker.configs.default.registerHealthIndicator=true
+                    resilience4j.circuitbreaker.configs.default.ringBufferSizeInClosedState=4
+                    resilience4j.circuitbreaker.configs.default.ringBufferSizeInHalfOpenState=2
+                    resilience4j.circuitbreaker.configs.default.automaticTransitionFromOpenToHalfOpenEnabled=true
+                    resilience4j.circuitbreaker.configs.default.waitDurationInOpenState= 20s
+                    resilience4j.circuitbreaker.configs.default.failureRateThreshold= 50
+                    resilience4j.circuitbreaker.configs.default.eventConsumerBufferSize= 10
+
+            in.cts.budgetanalysis : statement
+               dependencies
+                    ++org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j
+                
+                configuaration
+                    resilience4j.circuitbreaker.configs.default.registerHealthIndicator=true
+                    resilience4j.circuitbreaker.configs.default.ringBufferSizeInClosedState=4
+                    resilience4j.circuitbreaker.configs.default.ringBufferSizeInHalfOpenState=2
+                    resilience4j.circuitbreaker.configs.default.automaticTransitionFromOpenToHalfOpenEnabled=true
+                    resilience4j.circuitbreaker.configs.default.waitDurationInOpenState= 20s
+                    resilience4j.circuitbreaker.configs.default.failureRateThreshold= 50
+                    resilience4j.circuitbreaker.configs.default.eventConsumerBufferSize= 10
+
         Step 6: External Configuaration Design Pattern
+            inTheWorkSpace> md bt-props-repo
+                //and then create these files in this directory
+                    // gateway.properties
+                    // profiles.properties
+                    // txns.properties
+                    // statement.properties
+                    // move the content of 'application.properties' of each microservice into these respective files
+                    
+                inTheWorkSpace> cd bt-props-repo
+                inTheWorkSpace\bt-props-repo> git init           
+                inTheWorkSpace\bt-props-repo> git add .
+                inTheWorkSpace\bt-props-repo> git commit -m "all service properties"
+            
+            in.cts.budgetanalysis : discovery
+            in.cts.budgetanalysis : config
+                dependencies
+                    org.springframework.boot:spring-boot-devtools
+                    org.springframework.cloud:spring-cloud-config-server
+                    org.springframework.cloud:spring-cloud-starter-netflix-eureka-client
+                
+                configuaration  
+                    @EnableDiscoveryClient
+                    @EnableConfigServer             on Application class
+
+                    spring.application.name=config
+                    server.port=9090
+
+                    spring.cloud.config.server.git.uri=file:///local/git/repo/path
+
+                    eureka.client.serviceUrl.defaultZone=http://localhost:9000/eureka/
+                    eureka.client.initialInstanceInfoReplicationIntervalSeconds=5
+                    eureka.client.registryFetchIntervalSeconds=5
+                    eureka.instance.leaseRenewalIntervalInSeconds=5
+                    eureka.instance.leaseExpirationDurationInSeconds=5
+            
+            in.cts.budgetanalysis : gateway
+                dependencies
+                    ++ org.springframework.cloud:spring-cloud-starter-bootstrap
+                    ++ org.springframework.cloud:spring-cloud-config-client
+
+                configuaration - bootstrap.properties
+                    spring.cloud.config.name=gateway
+                    spring.cloud.config.discovery.service-id=config
+                    spring.cloud.config.discovery.enabled=true
+                    
+                    eureka.client.serviceUrl.defaultZone=http://localhost:9000/eureka/                    
+            
+            in.cts.budgetanalysis : profiles
+                dependencies
+                    ++ org.springframework.cloud:spring-cloud-starter-bootstrap
+                    ++ org.springframework.cloud:spring-cloud-config-client
+
+                configuaration - bootstrap.properties
+                    spring.cloud.config.name=profiles
+                    spring.cloud.config.discovery.service-id=config
+                    spring.cloud.config.discovery.enabled=true
+                    
+                    eureka.client.serviceUrl.defaultZone=http://localhost:9000/eureka/   
+
+            in.cts.budgetanalysis : txns
+                dependencies
+                    ++ org.springframework.cloud:spring-cloud-starter-bootstrap
+                    ++ org.springframework.cloud:spring-cloud-config-client
+
+                configuaration - bootstrap.properties
+                    spring.cloud.config.name=txns
+                    spring.cloud.config.discovery.service-id=config
+                    spring.cloud.config.discovery.enabled=true
+                    
+                    eureka.client.serviceUrl.defaultZone=http://localhost:9000/eureka/   
+
+            in.cts.budgetanalysis : statement
+                dependencies
+                    ++ org.springframework.cloud:spring-cloud-starter-bootstrap
+                    ++ org.springframework.cloud:spring-cloud-config-client
+
+                configuaration - bootstrap.properties
+                    spring.cloud.config.name=statement
+                    spring.cloud.config.discovery.service-id=config
+                    spring.cloud.config.discovery.enabled=true
+                    
+                    eureka.client.serviceUrl.defaultZone=http://localhost:9000/eureka/   
 
     Assignement - D2HConsumerSelfServiceSystem
     -----------------------------------------------------------
